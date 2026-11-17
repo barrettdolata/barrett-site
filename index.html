@@ -305,7 +305,7 @@ body.clip-lock { overflow: hidden; }
 .grid + .sub { margin-top: 56px; }
 #art .grid.grid-2d { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 900px) { #art .grid.grid-2d { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 440px) { #art .grid.grid-2d { grid-template-columns: 1fr; } }
+@media (max-width: 440px) { #art .grid.grid-2d { grid-template-columns: 1fr; } #art .grid-2d .img.media.sheet { aspect-ratio: auto; } #art .grid-2d .img.media.sheet img:first-child { position: static; height: auto; } }
 .tile .img { background: #1e1e1e; color: #8a8a8a; }
 .tile .img.media { padding: 0; background: #cdcdcd; overflow: hidden; display: block; position: relative; }
 .tile .img.media.sheet { background: transparent; }
