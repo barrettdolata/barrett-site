@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monthly print subscription · Barrett Dolata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root { --paper: #0b0b0b; --ink: #f1f1f1; --pencil: #9a9a9a; --rule: #2a2a2a; --red: #d6281e; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Inconsolata", Consolas, "Courier New", monospace; font-size: 17px; line-height: 1.6; }
+a { color: inherit; }
+a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+.top { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; font-size: 14px; }
+.top a { text-decoration: none; color: var(--pencil); }
+.top a:hover { color: var(--ink); }
+.name { color: var(--ink) !important; letter-spacing: .04em; }
+h1 { font-weight: 400; font-size: clamp(34px, 5vw, 52px); line-height: 1.1; margin: 48px 0 18px; }
+.lede { font-size: 21px; max-width: 34ch; margin: 0 0 18px; }
+.pitch { color: #cfcfcf; max-width: 46ch; margin: 0 0 32px; }
+.hero { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 56px; align-items: start; padding-bottom: 56px; border-bottom: 1px solid var(--rule); }
+.postcard { background: #f4f1ea; padding: 12px; transform: rotate(-2deg); box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+.postcard img { display: block; width: 100%; height: auto; }
+.tag { margin: 8px 0 -2px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #6d6a64; text-align: center; }
+.price { margin: 0 0 18px; color: var(--pencil); }
+.price span { font-size: 36px; color: var(--ink); margin-right: 4px; }
+.btn { display: inline-block; background: var(--red); color: #fff; text-decoration: none; padding: 12px 28px; font-size: 16px; letter-spacing: .04em; }
+.btn.is-soon { background: transparent; color: var(--pencil); border: 1px solid var(--pencil); pointer-events: none; }
+.small { font-size: 14px; color: var(--pencil); margin-top: 14px; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--pencil); margin: 56px 0 22px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; counter-reset: s; }
+.steps li { counter-increment: s; border-top: 3px solid var(--ink); padding-top: 14px; }
+.steps li::before { content: counter(s); display: block; font-size: 32px; color: var(--red); line-height: 1; margin-bottom: 10px; }
+.steps b { display: block; font-weight: 600; margin-bottom: 4px; }
+.steps p { margin: 0; color: #cfcfcf; font-size: 16px; }
+.faq { max-width: 680px; padding-bottom: 72px; }
+.faq dt { font-weight: 600; margin-top: 22px; }
+.faq dd { margin: 4px 0 0; color: #cfcfcf; }
+footer { border-top: 1px solid var(--rule); padding: 24px 0 40px; font-size: 14px; color: var(--pencil); }
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; gap: 36px; }
+  .postcard { max-width: 240px; }
+  .steps { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="name" href="index.html">Barrett Dolata</a>
+      <a href="index.html#art">&larr; Back to the site</a>
+    </header>
+
+    <h1 id="title">Monthly print subscription</h1>
+
+    <div class="hero">
+      <div class="postcard"><img src="img/dolly-purple.jpg" width="910" height="1300" alt="Like Dolly, a black linocut on light purple paper of a woman with a towering beehive, shown as a sample postcard"><p class="tag">Sample card</p></div>
+      <div>
+        <p class="lede">One postcard of my original work, mailed the last week of every month.</p>
+        <p class="pitch">For a whopping $6, you&rsquo;ll be reminded that living artists do exist and that you should send someone you love a postcard every once in a while. Who doesn&rsquo;t love mail? Tearing open an envelope, the carefully picked stamp, the warm penmanship. Then a new picture on the fridge every time you swing the door open.</p>
+        <p class="price"><span>$6</span> a month</p>
+        <a class="btn is-soon" href="#title" aria-disabled="true">Opening soon</a>
+        <p class="small">Cancel anytime.</p>
+      </div>
+    </div>
+
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li><b>You subscribe</b><p>Sign up for $6 a month and give me the address you want it mailed to.</p></li>
+      <li><b>I pick a piece</b><p>Each month I choose something new from my prints, paintings and drawings and print it as a postcard. Sometimes there&rsquo;s a sticker too.</p></li>
+      <li><b>It shows up</b><p>Your card is mailed in an envelope the last week of the month, so you can keep it or pass it along with a note of your own. What&rsquo;s inside stays a secret until it&rsquo;s in your mailbox.</p></li>
+    </ol>
+
+    <h2>Questions</h2>
+    <dl class="faq">
+      <dt>Will I know which piece is coming?</dt>
+      <dd>No. Every card is a reveal. The sample above is just to show what one looks like.</dd>
+      <dt>When does it arrive?</dt>
+      <dd>Cards go in the mail the last week of every month.</dd>
+      <dt>Can I cancel?</dt>
+      <dd>Yes, anytime.</dd>
+      <dt>Have another question?</dt>
+      <dd>Email me at <a href="mailto:barrettdolata@gmail.com">barrettdolata@gmail.com</a>.</dd>
+    </dl>
+  </div>
+  <footer><div class="wrap">&copy; 2026 Barrett Dolata</div></footer>
+</body>
+</html>

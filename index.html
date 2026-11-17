@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barrett Dolata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;600&family=Karla:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea — white paper, hand-lettered statement up top, art in a clean grid, everything else as quiet lists */
+:root {
+  --paper: #ffffff;
+  --ink: #161616;
+  --pencil: #6b6b6b;
+  --rule: #e4e4e4;
+  --accent: #161616;
+  --font-hand: "Inconsolata", Consolas, "Courier New", monospace;
+  --font-body: "Inconsolata", Consolas, "Courier New", monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { overflow-x: hidden; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+
+/* Art section, always dark so the work sits on black */
+#art { --paper: #0b0b0b; --ink: #f1f1f1; --pencil: #9a9a9a; --rule: #2a2a2a; background: var(--paper); color: var(--ink); padding-bottom: 72px; color-scheme: dark; }
+
+
+/* Night street banner with name over it */
+.hero { padding: 0; }
+.banner { position: relative; height: min(62vh, 620px); min-height: 300px; overflow: hidden; background: #111 url("img/night-banner.jpg") center / cover no-repeat; }
+.banner-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; display: block; }
+.banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0) 55%); pointer-events: none; }
+.banner-text { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 0 20px 28px; color: #fff; }
+.landing-name { margin: 0; font-size: clamp(34px, 5.5vw, 64px); font-weight: 600; letter-spacing: -0.01em; line-height: 1.05; }
+.tagline { margin: 8px 0 0; font-size: clamp(16px, 1.8vw, 20px); color: rgba(255,255,255,0.82); }
+
+/* Nav */
+.nav {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
+.nav .mark { font-weight: 600; font-size: 17px; text-decoration: none; }
+.nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 22px; margin: 0; padding: 0; }
+.nav a.link { text-decoration: none; font-weight: 600; font-size: 15px; }
+.nav a.link:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Sections */
+section { padding: 56px 0 8px; scroll-margin-top: 64px; }
+h2 {
+  font-weight: 400;
+  font-size: 44px;
+  margin: 0 0 24px;
+  line-height: 1.1;
+}
+.note { color: var(--pencil); font-size: 14px; }
+
+/* Sketchbook spreads */
+.sub { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil); margin: 0 0 14px; }
+.spreads + .sub { margin-top: 44px; }
+.spreads { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.spread { padding: 0; border: 0; background: none; cursor: zoom-in; display: block; }
+.spread img { display: block; width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.lightbox { position: fixed; inset: 0; z-index: 20; background: rgba(255,255,255,0.97); display: none; place-items: center; padding: 24px; cursor: zoom-out; }
+.lightbox.open { display: grid; }
+.lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.lightbox .close { position: absolute; top: 14px; right: 18px; font: 600 15px var(--font-body); background: none; border: 0; cursor: pointer; }
+@media (max-width: 600px) { .spreads { grid-template-columns: 1fr; } }
+
+/* Sketchbook as a book whose pages turn on their own */
+.book { position: relative; width: min(100%, 900px); margin: 0 auto; aspect-ratio: 1800 / 1320; perspective: 2600px; box-shadow: 0 18px 40px rgba(0,0,0,0.5); }
+.half, .face { position: absolute; top: 0; bottom: 0; width: 50%; background-size: 200% 100%; background-repeat: no-repeat; }
+.half.left { left: 0; }
+.half.right { right: 0; }
+.leaf { position: absolute; top: 0; bottom: 0; left: 50%; width: 50%; transform-origin: left center; transform-style: preserve-3d; z-index: 3; }
+.leaf .face { width: 100%; left: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.leaf .back { transform: rotateY(180deg); }
+.leaf.turning { transition-property: transform; transform: rotateY(-180deg); }
+.spine { position: absolute; top: 0; bottom: 0; left: 50%; width: 40px; transform: translateX(-50%); z-index: 4; pointer-events: none; background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.18) 45%, rgba(0,0,0,0.28) 50%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0) 100%); }
+.book { cursor: zoom-in; }
+.bk-zoom { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; overflow: hidden; cursor: zoom-out; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+.bk-zoom.open { opacity: 1; pointer-events: auto; }
+.bk-zoom-bg { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(28px) brightness(.55) saturate(1.1); transform: scale(1.08); }
+.bk-zoom img { position: relative; max-width: 92vw; max-height: 86vh; width: auto; height: auto; box-shadow: 0 24px 60px rgba(0,0,0,.6); transform: scale(.9); transition: transform .3s cubic-bezier(.2,.7,.2,1); }
+.bk-zoom.open img { transform: scale(1); }
+body.bk-lock { overflow: hidden; }
+
+.book-ctrl { display: flex; justify-content: center; align-items: center; gap: 18px; margin-top: 20px; font-size: 13px; color: var(--pencil); letter-spacing: .08em; }
+.book-ctrl button { background: none; border: 1px solid var(--pencil); color: var(--ink); font: inherit; font-size: 18px; width: 40px; height: 34px; cursor: pointer; }
+.book-ctrl button:hover { border-color: var(--ink); }
+.book-label { text-align: center; margin: 22px 0 64px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil); }
+@media (prefers-reduced-motion: reduce) { .leaf.turning { transition-duration: 0.01s; } }
+
+/* Poetry heading over a photo of the thesis reading */
+
+.poetry-hero { position: relative; margin: 0 calc(50% - 50vw) 32px; width: 100vw; overflow: hidden; }
+.poetry-photo { display: block; width: 100%; height: min(56vw, 640px); object-fit: cover; object-position: 50% 55%; }
+.poetry-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.45), rgba(0,0,0,0) 45%); pointer-events: none; }
+.poetry-hero h2.on-photo { position: absolute; top: 22px; left: max(20px, calc(50vw - 520px)); margin: 0; z-index: 1; }
+.poetry-hero h2.on-photo .hw { filter: drop-shadow(0 1px 8px rgba(0,0,0,0.45)); }
+@media (max-width: 600px) { .poetry-hero h2.on-photo { top: 10px; left: 16px; } .poetry-hero h2.on-photo .hw { height: 46px !important; } }
+
+.poetry-note p { max-width: 62ch; margin: 28px 0 0; color: var(--pencil); font-size: 13px; line-height: 1.5; }
+.poetry-note a { color: inherit; }
+
+/* Poems, one featured in full with more opening in a reading card */
+.poetry-body { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 64px; align-items: start; }
+.poem-feature, .poem-text { font-family: "Inconsolata", Consolas, "Courier New", monospace; font-size: 18px; line-height: 1.65; }
+.poem-feature h3, .poem-text h3 { font-family: "Inconsolata", Consolas, "Courier New", monospace; font-size: 24px; font-weight: 600; margin: 0 0 24px; letter-spacing: -0.01em; }
+.poem-feature p, .poem-text p { margin: 0 0 1.3em; }
+.poem-feature .indent, .poem-text .indent { display: inline-block; padding-left: 7em; }
+.poem-more { position: sticky; top: 90px; border-top: 2px solid var(--ink); padding-top: 14px; }
+.poem-more h4 { margin: 0 0 12px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil); }
+.poem-more ul { list-style: none; margin: 0; padding: 0; }
+.poem-more li { border-bottom: 1px solid var(--rule); }
+.poem-open { all: unset; cursor: pointer; display: block; width: 100%; padding: 12px 0; font-family: "Inconsolata", Consolas, "Courier New", monospace; font-size: 17px; }
+.poem-open:hover { text-decoration: underline; text-underline-offset: 4px; }
+.poem-open:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.poem-modal { position: fixed; inset: 0; z-index: 30; background: rgba(20,20,20,0.55); display: grid; place-items: center; padding: 20px; }
+.poem-modal[hidden] { display: none; }
+.poem-modal-card { position: relative; background: #fff; color: #161616; width: min(100%, 560px); max-height: 88vh; overflow-y: auto; padding: 44px 40px 28px; }
+.poem-close { position: absolute; top: 12px; right: 14px; background: none; border: 0; font: 600 14px var(--font-body); cursor: pointer; }
+@media (max-width: 800px) { .poetry-body { grid-template-columns: 1fr; gap: 40px; } .poem-more { position: static; } .poem-feature .indent, .poem-text .indent { padding-left: 4em; } }
+
+
+/* Off-Beat episode list */
+.episodes { list-style: none; margin: 20px 0 0; padding: 0; border-top: 2px solid var(--ink); }
+.episodes li { border-bottom: 1px solid var(--rule); }
+.ep { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 14px 0; text-decoration: none; color: inherit; }
+.ep-title { font-weight: 600; font-size: 18px; }
+.ep-meta { font-size: 13px; color: var(--pencil); white-space: nowrap; align-self: baseline; }
+.ep-desc { grid-column: 1 / -1; font-size: 15px; color: var(--pencil); max-width: 60ch; }
+.ep:hover .ep-title { text-decoration: underline; text-underline-offset: 4px; }
+.listen { margin-top: 18px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.listen a { text-decoration: none; }
+.listen a:hover { text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 500px) { .ep { grid-template-columns: 1fr; } }
+#audio .audio { align-items: start; }
+#audio .cover { position: sticky; top: 90px; }
+#audio .cover-logo { background: #0b0b0b; border: 1px solid #2a2a2a; padding: 0; display: block; }
+#audio .cover-logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* Audio section, black like Art */
+#audio { --paper: #0b0b0b; --ink: #f1f1f1; --pencil: #9a9a9a; --rule: #2a2a2a; background: var(--paper); color: var(--ink); padding-bottom: 72px; color-scheme: dark; }
+
+#audio a { color: inherit; }
+
+#audio .offbeat-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 56px; }
+#audio .offbeat-photos figure { margin: 0; }
+#audio .offbeat-photos img { display: block; width: 100%; height: auto; }
+#audio .offbeat-photos figcaption { font-size: 13px; color: var(--pencil); padding-top: 8px; }
+@media (max-width: 640px) { #audio .offbeat-photos { grid-template-columns: 1fr; } }
+
+/* Off-Beat layout, logo and two reporting photos in one row, then description beside the episodes */
+#audio .ob-strip { display: grid; grid-template-columns: 2fr 3fr 3fr; gap: 14px; align-items: start; }
+#audio .ob-strip > * { margin: 0; min-width: 0; }
+#audio .ob-strip img { display: block; width: 100%; height: auto; }
+#audio .ob-strip figcaption { font-size: 13px; color: var(--pencil); padding-top: 8px; }
+#audio .ob-strip .cover-logo { position: static; aspect-ratio: 1 / 1; }
+#audio .ob-strip figure img { aspect-ratio: 3 / 2; object-fit: cover; }
+#audio .ob-strip figure { display: flex; flex-direction: column; }
+#audio .ob-body { display: grid; grid-template-columns: 2fr 3fr; gap: 48px; margin-top: 40px; }
+#audio .ob-desc p { margin: 0 0 12px; }
+#audio .episodes { margin-top: 0; }
+@media (max-width: 800px) { #audio .ob-strip { grid-template-columns: 1fr 1fr; } #audio .ob-strip .cover-logo { grid-column: 1 / -1; max-width: 240px; } #audio .ob-body { grid-template-columns: 1fr; gap: 24px; } }
+@media (max-width: 500px) { #audio .ob-strip { grid-template-columns: 1fr; } }
+
+#audio .ob-word { display: block; margin: 0 0 18px; }
+#audio .ob-word img { display: block; width: min(100%, 260px); height: auto; }
+#audio .ob-body { margin-top: 8px; }
+#audio .ob-carousel { margin-top: 28px; position: relative; }
+#audio .ob-slide { display: none; }
+#audio .ob-slide.is-on { display: block; animation: obfade 0.45s ease; }
+@keyframes obfade { from { opacity: 0; } to { opacity: 1; } }
+#audio .ob-slide figure { margin: 0; }
+#audio .ob-slide img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
+#audio .ob-slide figcaption { font-size: 13px; color: var(--pencil); padding-top: 8px; min-height: 2.8em; }
+#audio .ob-ctrl { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
+#audio .ob-ctrl button { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer; font-size: 15px; }
+#audio .ob-ctrl button:hover { border-color: var(--ink); }
+#audio .ob-count { font-size: 13px; color: var(--pencil); }
+@media (prefers-reduced-motion: reduce) { #audio .ob-slide.is-on { animation: none; } }
+
+#audio .ob-origin { margin-top: 10px; font-size: 13px; color: var(--pencil); }
+#audio .md-blue { color: #6c9cff; font-weight: 600; }
+
+.portrait-photo { position: relative; aspect-ratio: 4 / 5; overflow: hidden; }
+.portrait-photo.night { aspect-ratio: 660 / 540; background: #111 url("img/portrait-night.jpg") center / cover no-repeat; }
+.portrait-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+#about .about { grid-template-columns: 1fr; }
+#about .about > div { max-width: 62ch; }
+.portrait-photo.small { width: 220px; margin-top: 24px; }
+
+.nav .wrap { justify-content: flex-end; }
+
+/* Menu links over the banner video */
+.banner .nav { position: absolute; top: auto; bottom: 0; left: 0; right: 0; z-index: 2; background: transparent; border: 0; }
+.banner .nav .wrap { padding-bottom: 30px; }
+@media (max-width: 700px) { .banner .nav .wrap { justify-content: flex-end; padding-bottom: 16px; } .banner .nav ul { gap: 6px 16px; justify-content: flex-end; } .banner-text { padding-bottom: 92px; } }
+.nav a.link { color: #f1f1f1; }
+.nav a.link:hover { color: #fff; }
+.nav a.link:focus-visible { outline-color: #fff; }
+
+.poem-more-btn { margin-top: 6px; background: none; border: 0; border-bottom: 1px solid currentColor; padding: 0 0 2px; font: 600 15px var(--font-body); color: var(--ink); cursor: pointer; }
+.poem-more-btn:hover { opacity: 0.7; }
+
+.landing-name img { display: block; height: clamp(120px, 17vw, 200px); width: auto; filter: drop-shadow(0 2px 12px rgba(0,0,0,0.55)); }
+
+/* Off-Beat show page */
+#audio .ob-head { margin: 4px 0 28px; }
+#audio .ob-head .ob-word { display: inline-block; margin: 0 0 10px; }
+#audio .ob-head .ob-word img { width: min(100%, 420px); height: auto; display: block; }
+#audio .ob-tag { margin: 0; max-width: 60ch; font-size: 17px; color: #cfcfcf; }
+#audio .ob-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+#audio .ob-photos figure { margin: 0; }
+#audio .ob-photos img { display: block; width: 100%; height: auto !important; aspect-ratio: 3 / 2; object-fit: cover; }
+#audio .ob-photos figcaption { font-size: 13px; color: var(--pencil); padding-top: 8px; }
+#audio .ob-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 40px; }
+#audio .ob-card { display: flex; flex-direction: column; gap: 8px; padding: 16px 16px 18px; border: 1px solid #2c2c2c; text-decoration: none; color: inherit; transition: border-color 0.2s, background 0.2s; }
+#audio .ob-card:hover { border-color: #d6281e; background: #141414; }
+#audio .ob-card-meta { font-size: 12px; color: var(--pencil); text-transform: uppercase; letter-spacing: 0.06em; }
+#audio .ob-card-title { font-weight: 600; font-size: 18px; line-height: 1.25; }
+#audio .ob-card-desc { font-size: 14px; color: #b8b8b8; line-height: 1.5; }
+#audio .ob-foot { margin-top: 28px; }
+#audio .ob-foot .listen { margin-top: 0; }
+@media (max-width: 900px) { #audio .ob-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { #audio .ob-photos, #audio .ob-cards { grid-template-columns: 1fr; } }
+
+.poem-open.is-current { color: #d6281e; font-weight: 600; }
+.poem-feature { scroll-margin-top: 24px; }
+
+.poetry-fig { margin: 0 0 40px; }
+.poetry-fig img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 7; object-fit: cover; object-position: 50% 55%; }
+.poetry-fig figcaption { font-size: 13px; color: var(--pencil); padding-top: 8px; }
+
+.poem-note { margin: 18px 0 0; font-size: 13px; line-height: 1.55; color: var(--pencil); }
+.poem-note a { color: inherit; }
+
+.more-clips { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 28px; margin-top: 36px; padding-top: 16px; border-top: 2px solid var(--ink); }
+.more-label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil); }
+.more-clips a { font-weight: 600; text-decoration: none; }
+.more-clips a:hover { color: #d6281e; }
+
+.banner-text .name-block { display: inline-flex; flex-direction: column; align-items: center; }
+.banner-text .name-block .tagline { margin-top: 2px; text-align: center; letter-spacing: 0.02em; }
+
+.banner .banner-text { max-width: none; margin: 0; padding-left: clamp(16px, 4vw, 56px); }
+
+.red { color: #d6281e; }
+
+.paywall-note { margin: -8px 0 22px; font-size: 13px; color: var(--pencil); }
+.pdf-link { position: relative; z-index: 2; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.pdf-link:hover { color: #d6281e; }
+
+.clip-view { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.88); display: none; overflow-y: auto; padding: 56px 16px 40px; }
+.clip-view.open { display: block; }
+.clip-view img { display: block; width: 100%; max-width: 760px; height: auto; margin: 0 auto 14px; background: #fff; }
+.clip-close { position: fixed; top: 14px; right: 18px; z-index: 101; background: #000; color: #fff; border: 1px solid #fff; font: inherit; font-size: 14px; padding: 6px 12px; cursor: pointer; }
+body.clip-lock { overflow: hidden; }
+
+.subscribe { margin-top: 64px; padding-top: 40px; border-top: 1px solid var(--rule); }
+.sub-grid { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 44px; align-items: center; }
+.postcard { background: #f4f1ea; padding: 12px; transform: rotate(-2deg); box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+.postcard img { display: block; width: 100%; height: auto; }
+.postcard-tag { margin: 8px 0 -2px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #6d6a64; text-align: center; }
+.sub-lede { font-size: 20px; line-height: 1.4; margin: 0 0 18px; max-width: 30ch; }
+.sub-price { margin: 0 0 18px; color: var(--pencil); }
+.sub-price span { font-size: 32px; color: var(--ink); margin-right: 4px; }
+.sub-btn { display: inline-block; background: #d6281e; color: #fff; text-decoration: none; padding: 12px 26px; font-size: 16px; letter-spacing: .04em; }
+.sub-btn:hover { background: #b81f16; }
+.sub-btn.is-soon { background: transparent; color: var(--pencil); border: 1px solid var(--pencil); cursor: default; pointer-events: none; }
+.sub-points { list-style: none; padding: 0; margin: 24px 0 0; font-size: 14px; color: var(--pencil); line-height: 1.8; }
+.sub-head { text-decoration: none; }
+.sub-head:hover { color: var(--ink); }
+.sub-more { margin: 18px 0 0; font-size: 14px; }
+.sub-more a { color: var(--ink); text-underline-offset: 3px; }
+.sub-more a:hover { color: #d6281e; }
+.sub-points li::before { content: "\2014  "; }
+@media (max-width: 700px) { .sub-grid { grid-template-columns: 1fr; gap: 32px; } .postcard { max-width: 240px; } }
+
+.nav a.nav-red, .banner .nav a.nav-red { color: #e3352a; }
+.nav a.nav-red:hover { color: #ff5a4f; }
+
+/* Art grid */
+#art .grid:not(.grid-2d) { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 900px) { #art .grid:not(.grid-2d) { grid-template-columns: repeat(2, 1fr); } }
+.grid + .sub { margin-top: 56px; }
+#art .grid.grid-2d { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 900px) { #art .grid.grid-2d { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 440px) { #art .grid.grid-2d { grid-template-columns: 1fr; } }
+.tile .img { background: #1e1e1e; color: #8a8a8a; }
+.tile .img.media { padding: 0; background: #cdcdcd; overflow: hidden; display: block; position: relative; }
+.tile .img.media.sheet { background: transparent; }
+.tile .img.media.sheet img { object-fit: contain !important; }
+.tile .img.media.swap .day { opacity: 0; transition: opacity 0.5s ease; }
+.tile .img.media.swap:hover .day { opacity: 1; }
+.tile .img.media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.tile figure { margin: 0; }
+.tile .img {
+  aspect-ratio: 4 / 5;
+  display: grid; place-items: center;
+  font-size: 15px;
+  color: rgba(22,22,22,0.55);
+  text-align: center;
+  padding: 16px;
+}
+.tile figcaption { font-size: 14px; padding-top: 8px; color: var(--pencil); }
+.tile figcaption b { color: var(--ink); font-weight: 600; }
+
+
+
+.section-note { margin: -8px 0 24px; max-width: 60ch; color: var(--pencil); font-size: 16px; }
+
+/* Story grid, newspaper-style ruled cells with no outer box */
+.stories { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 33px; }
+.story { position: relative; padding: 18px 0; border-bottom: 1px solid var(--ink); display: flex; flex-direction: column; gap: 8px; }
+.story:nth-child(-n+4) { padding-top: 0; }
+.story:nth-child(4n+1):nth-last-child(-n+4), .story:nth-child(4n+1):nth-last-child(-n+4) ~ .story { border-bottom: 0; padding-bottom: 0; }
+.story:last-child::after { display: none; }
+.story:not(:nth-child(4n))::after { content: ""; position: absolute; top: 0; bottom: 0; right: -17px; width: 1px; background: var(--ink); }
+.story-photo { aspect-ratio: 3 / 2; background: #ececec; display: grid; place-items: center; color: var(--pencil); font-size: 14px; margin-bottom: 4px; }
+.story-photo.has-img { background: none; display: block; }
+.story-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.story .credit { margin: -6px 0 2px; font-size: 11px; color: var(--pencil); }
+.story h3 { margin: 0; padding-top: 10px; border-top: 3px solid var(--ink); font-size: 18px; line-height: 1.2; text-wrap: balance; }
+.story p { margin: 0; font-size: 15px; line-height: 1.45; }
+.story-link { color: inherit; text-decoration: none; }
+.story-link::after { content: ""; position: absolute; inset: 0; }
+.story:hover h3 { text-decoration: underline; text-underline-offset: 3px; }
+.story .meta { margin-top: auto; padding-top: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pencil); }
+@media (max-width: 1000px) {
+  .stories { grid-template-columns: repeat(2, 1fr); }
+  .story:nth-child(n) { padding: 18px 0; border-bottom: 1px solid var(--ink); }
+  .story:nth-child(-n+2) { padding-top: 0; }
+  .story:nth-child(2n+1):nth-last-child(-n+2), .story:nth-child(2n+1):nth-last-child(-n+2) ~ .story { border-bottom: 0; padding-bottom: 0; }
+  .story:nth-child(n)::after { display: none; }
+  .story:nth-child(2n+1):not(:last-child)::after { display: block; }
+}
+@media (max-width: 440px) {
+  .stories { grid-template-columns: 1fr; }
+  .story:nth-child(n) { padding: 18px 0; border-bottom: 1px solid var(--ink); }
+  .story:first-child { padding-top: 0; }
+  .story:last-child { border-bottom: 0; }
+  .story:nth-child(n)::after { display: none; }
+}
+
+/* Writing list */
+.list { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--accent); }
+.list li { display: grid; grid-template-columns: 170px 1fr auto; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.list .outlet { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pencil); }
+.list .title { font-weight: 600; }
+.list .title span { display: block; font-weight: 400; color: var(--pencil); font-size: 15px; }
+.list .go { font-size: 14px; color: var(--pencil); white-space: nowrap; }
+
+/* Poetry */
+.poems { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.poem { border-top: 1px solid var(--ink); padding-top: 14px; }
+.poem h3 { font-weight: 600; font-size: 20px; margin: 0 0 10px; }
+.poem .lines { display: grid; gap: 12px; padding-top: 6px; }
+.poem .lines i { display: block; height: 1px; background: var(--rule); }
+.poem .lines i:nth-child(2n) { width: 82%; } .poem .lines i:nth-child(3n) { width: 64%; }
+
+/* Audio */
+.audio { display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px; align-items: center; }
+.cover {
+  aspect-ratio: 1; background: var(--ink); color: var(--paper);
+  display: grid; place-items: center;
+  font-weight: 600; font-size: clamp(32px, 5vw, 48px); background: var(--accent);
+}
+.audio p { max-width: 60ch; margin: 0 0 12px; }
+
+/* About */
+.about { display: grid; grid-template-columns: 1fr 1.3fr; gap: 40px; align-items: start; }
+.portrait {
+  aspect-ratio: 4 / 5;
+  border: 2px dashed #bdbdbd;
+  display: grid; place-items: center; text-align: center; padding: 20px;
+  font-size: 15px; color: var(--pencil);
+}
+.about p { max-width: 62ch; margin: 0 0 14px; }
+
+/* Contact */
+.contact { padding-bottom: 80px; }
+.contact .big { margin: 0 0 16px; }
+.contact ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 28px; font-weight: 600; }
+
+footer { border-top: 1px solid var(--rule); padding: 20px 0 40px; font-size: 13px; color: var(--pencil); }
+
+@media (max-width: 800px) {
+  .grid, .poems { grid-template-columns: repeat(2, 1fr); }
+  .audio, .about { grid-template-columns: 1fr; }
+  .list li { grid-template-columns: 1fr; gap: 4px; }
+}
+@media (max-width: 440px) {
+  .grid, .poems { grid-template-columns: 1fr; }
+  .nav ul { gap: 14px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero banner" id="top">
+  <video class="banner-media" src="img/night-banner.mp4" poster="img/night-banner.jpg" width="1280" height="720" autoplay muted loop playsinline preload="auto" aria-label="Barrett on a city street at night under warm streetlights"></video>
+  <nav class="nav" aria-label="Sections">
+  <div class="wrap">
+    <ul>
+      <li><a class="link" href="#about">About</a></li>
+      <li><a class="link" href="#writing">Stories</a></li>
+      <li><a class="link" href="#art">Art</a></li>
+      <li><a class="link nav-red" href="prints.html">Prints</a></li>
+      <li><a class="link" href="#poetry">Poetry</a></li>
+      <li><a class="link" href="#audio">Audio</a></li>
+      <li><a class="link" href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+  <div class="banner-text">
+    <div class="name-block"><h1 class="landing-name"><img src="hw-name-red.png" width="749" height="380" alt="Barrett Dolata"></h1>
+    <p class="tagline">Reporter, writer &amp; artist</p></div>
+  </div>
+</header>
+
+<main>
+  <section id="about">
+    <div class="wrap about">
+      <div>
+        <p>Barrett Dolata is a <span class="red">journalist</span> from Oxford, Michigan, who chases any story and brings an <span class="red">artist</span>&rsquo;s sensibility to whatever he covers. He isn&rsquo;t afraid of hard subjects and handles them with care. In his reporting, his art and his poems, he&rsquo;s drawn to contrast, the humor and the grief, the beauty and the darkness, the strange little details that let two things be true at once.</p>
+        <p>He interned on the features desk at The Detroit News in summer 2025 and was asked to stay on as a freelancer. He still writes features on arts, culture and local business for the paper and is looking for full-time work in <span class="red">New York City</span>. He was previously business senior news editor at The Michigan Daily and has more than three years of experience reporting features, hard news and community stories, from daily breaking news to long-form enterprise pieces. He also co-hosts Off-Beat, a reported audio podcast, with Emma Spring.</p>
+        <p>He graduated from the <span class="red">University of Michigan</span> in 2026 with a bachelor&rsquo;s degree in honors English and a minor in art and design. His studio work includes drawing, painting, collage, ceramics and intaglio and relief printmaking. His poetry draws on family, humor and everyday life.</p>
+        <div class="portrait-photo small"><img class="hs" src="img/headshot-v3.jpg" width="800" height="1000" alt="Portrait of Barrett Dolata"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="writing">
+    <div class="wrap">
+      <h2><img class="hw" src="hw-stories-v2.png" width="714" height="200" style="height:72px;width:auto" alt="Stories"></h2>
+      <p class="paywall-note">Hit a paywall? Every Detroit News story has a PDF copy linked at the bottom.</p>
+      <div class="stories">
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/nailhouse.jpg" width="1200" height="800" alt="The interior of Cure Nailhouse, with a curved plaster ceiling, a lit steel bar and rows of chrome stools" loading="lazy"></div>
+          <p class="credit">Photo by Robin Buckson/The Detroit News</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/life/2025/08/15/manicures-are-out-ephemeral-sculptures-are-in/85656880007/" target="_blank" rel="noopener">Manicures are out, ephemeral sculptures are in</a></h3>
+          <p>At Cure Nailhouse, the nail techs are artists in residence, and every appointment starts with picking a colored tile at the bar.</p>
+          <p class="meta">The Detroit News · Aug. 15, 2025 · <a class="pdf-link" href="#" data-clip="cure-nailhouse" data-pages="7">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/costume.jpg" width="1116" height="744" alt="Racks of costumes, wigs and packaged outfits beneath a green mermaid tail marked Rent Me at Ed's Broadway Gift &amp; Costume" loading="lazy"></div>
+          <p class="credit">Photo by Barrett Dolata</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/entertainment/2026/10/24/lake-orion-shop-is-a-costume-lovers-paradise/92360008007/" target="_blank" rel="noopener">This Lake Orion shop is a costume lover's dream</a></h3>
+          <p>At Ed&rsquo;s Broadway Gift &amp; Costume, Kathy Coe sews the costumes by hand, and her husband, Lloyd, has marched as Buzz Lightyear in the town&rsquo;s Christmas parade for more than 25 years.</p>
+          <p class="meta">The Detroit News · Oct. 24, 2026 · <a class="pdf-link" href="#" data-clip="lake-orion" data-pages="5">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/robot.jpg" width="1200" height="800" alt="A humanoid robot reaching toward hands stretched through a chain-link fence" loading="lazy"></div>
+          <p class="credit">Photo by David Guralnick/The Detroit News</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/entertainment/2025/07/07/after-a-stroll-in-detroit-a-humanoid-robot-goes-viral/84447400007/" target="_blank" rel="noopener">After a stroll in Detroit, a humanoid robot goes viral</a></h3>
+          <p>Art Cartwright only wanted to see how fast his robot could run. Then someone filmed it sprinting down Seven Mile.</p>
+          <p class="meta">The Detroit News · July 7, 2025 · <a class="pdf-link" href="#" data-clip="robot" data-pages="6">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/haas.jpg" width="1200" height="800" alt="A red velvet Haas Brothers bench shaped like a creature with eyestalks and a tongue" loading="lazy"></div>
+          <p class="credit">Photo courtesy of the Haas Brothers</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/entertainment/arts/2025/10/29/haas-brothers-take-over-cranbrook-with-15-years-of-creatures-and-creations/86947953007/" target="_blank" rel="noopener">Haas Brothers take over Cranbrook with 15 years of creatures and creations</a></h3>
+          <p>Asked what materials they use, Simon Haas listed glass, fur, bronze, walnut, JavaScript and a dozen more before stopping to ask, &ldquo;Did you want me to keep going?&rdquo;</p>
+          <p class="meta">The Detroit News · Oct. 29, 2025 · <a class="pdf-link" href="#" data-clip="haas" data-pages="4">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/forever.jpg" width="600" height="400" alt="Inside Forever Club, a velvet Elvis painting hangs behind blue curtains above a black-and-white checkered floor" loading="lazy"></div>
+          <p class="credit">Photo by Perry Haselden, courtesy of Grace Moses</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/life/2026/02/11/hitched-in-hamtown-forever-club-launches-trendy-and-timeless-micro-weddings/88623914007/" target="_blank" rel="noopener">&lsquo;Hitched in Hamtown&rsquo;: Forever Club launches trendy and timeless micro weddings</a></h3>
+          <p>At Forever Club in Hamtramck, couples say their vows under a velvet painting of Elvis, and one pair booked on a Wednesday and got married that Saturday.</p>
+          <p class="meta">The Detroit News · Feb. 11, 2026 · <a class="pdf-link" href="#" data-clip="forever-club" data-pages="4">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/pistons.jpg" width="600" height="400" alt="White Pistons caps with red script lettering and navy gator-skin brims on a red court" loading="lazy"></div>
+          <p class="credit">Photo by Amanda J. Cain/Detroit Pistons</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/sports/nba/pistons/2025/10/24/detroit-pistons-local-creators-represent-city-with-new-merch-collabs/86876422007/" target="_blank" rel="noopener">Detroit Pistons, local creators represent city&rsquo;s culture with new merch collabs</a></h3>
+          <p>Kiwiclo&rsquo;s new Pistons hat puts blue gator skin on the brim, a nod to the shoes Detroiters once wore to make a statement.</p>
+          <p class="meta">The Detroit News · Oct. 24, 2025 · <a class="pdf-link" href="#" data-clip="pistons" data-pages="4">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/hio.jpg" width="1200" height="800" alt="A farmer harvests tomatoes into a basket between tall rows of vines at HiO Farm" loading="lazy"></div>
+          <p class="credit">Photo by Daniel Mears/The Detroit News</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/entertainment/dining/2025/08/08/their-farm-to-their-own-restaurant-table-detroits-hio-farm/85412442007/" target="_blank" rel="noopener">Their farm to their own restaurant table</a></h3>
+          <p>Noelle Stull used to bike the day&rsquo;s harvest a mile across Core City to her husband&rsquo;s Thai restaurant.</p>
+          <p class="meta">The Detroit News · Aug. 8, 2025 · <a class="pdf-link" href="#" data-clip="hio-farm" data-pages="7">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/dacus.jpg" width="600" height="400" alt="Lucy Dacus sings seated onstage under orange spotlights as a bandmate plays keyboard" loading="lazy"></div>
+          <p class="credit">Photo by Barrett Dolata</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/entertainment/music/2025/07/30/weddings-roses-and-guitar-endings-lucy-dacus-detroit-tour-stop/85405976007/" target="_blank" rel="noopener">Weddings, roses and guitar endings: Lucy Dacus&rsquo; Detroit tour stop</a></h3>
+          <p>Lucy Dacus officiated four weddings onstage at the Masonic Temple Theatre, then handed each couple red roses and tossed the rest into the crowd.</p>
+          <p class="meta">The Detroit News · July 30, 2025 · <a class="pdf-link" href="#" data-clip="dacus" data-pages="5">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/labubu.jpg" width="1200" height="764" alt="Shoppers browsing a Pop Mart Robo Shop vending machine at a mall" loading="lazy" style="object-position: 50% 0%"></div>
+          <p class="credit">Photo by Barrett Dolata</p>
+          <h3><a class="story-link" href="https://www.detroitnews.com/story/entertainment/2025/06/20/labubu-toy-dolls-michigan-malls-craze/84246671007/" target="_blank" rel="noopener">Metro Detroit unboxes the Labubu craze</a></h3>
+          <p>The lines at Great Lakes Crossing and Twelve Oaks look like Black Friday, all for a furry monster doll you can&rsquo;t pick out yourself.</p>
+          <p class="meta">The Detroit News · June 20, 2025 · <a class="pdf-link" href="#" data-clip="labubu" data-pages="5">Read the PDF</a></p>
+        </article>
+        <article class="story">
+          <div class="story-photo has-img"><img src="img/umich.jpg" width="1200" height="800" alt="Protesters link arms in front of a police car outside the University of Michigan Museum of Art at dusk" loading="lazy"></div>
+          <p class="credit">Photo by Ellie Vice/The Michigan Daily</p>
+          <h3><a class="story-link" href="https://www.michigandaily.com/news/news-briefs/umich-suspends-students-from-campus-jobs-for-participating-in-may-3-pro-palestine-protest/" target="_blank" rel="noopener">UMich fires full-time employee, suspends 4 from campus jobs for participating in May 3 pro-Palestine protest</a></h3>
+          <p>Four students lost their campus jobs and a full-time staff member was fired over their conduct at a May 3, 2024, pro-Palestine protest.</p>
+          <p class="meta">The Michigan Daily · April 10, 2025</p>
+        </article>
+      </div>
+      <div class="more-clips">
+        <span class="more-label">More stories</span>
+        <a href="https://www.detroitnews.com/search/?q=barrett+dolata" target="_blank" rel="noopener">The Detroit News &#8599;</a>
+        <a href="https://www.detroitnews.com/staff/83921417007/barrett-dolata/" target="_blank" rel="noopener">Detroit News internship &#8599;</a>
+        <a href="https://www.michigandaily.com/author/bdolata/" target="_blank" rel="noopener">The Michigan Daily &#8599;</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="art">
+    <div class="wrap">
+      <h2><img class="hw" src="hw-art.png" width="403" height="200" style="height:72px;width:auto" alt="Art"></h2>
+      <div class="book" id="book" tabindex="0" role="group" aria-roledescription="sketchbook" aria-label="Pages from my sketchbooks, turning on their own. Click to enlarge the current page. Includes synchronized swimmers, two white cats beside a mouth whose teeth spell Barrett Dolata, runway figures, a magazine collage of sausage makers and models on a mountain, a ferry railing over blue water, a Lisbon journal page collaged with Gulbenkian museum ephemera, full moon sketches and prints, a woman in pink and yellow, two men standing on a mountain range, and dancers under green lights">
+        <div class="half left" id="pg-left"></div>
+        <div class="half right" id="pg-under"></div>
+        <div class="leaf" id="leaf">
+          <div class="face front" id="leaf-front"></div>
+          <div class="face back" id="leaf-back"></div>
+        </div>
+        <div class="spine" aria-hidden="true"></div>
+      </div>
+      <p class="book-label">From my sketchbooks</p>
+      <h3 class="sub">3D</h3>
+      <div class="grid">
+        <div class="tile"><figure><div class="img media swap"><img class="lit" src="img/lamp-lit.jpg" width="800" height="1000" alt="A laser-cut tealight lamp glowing in a dark room, light shining through a carved koi fish and wave pattern" loading="lazy"><img class="day" src="img/lamp-day.jpg" width="800" height="1000" alt="The same lamp unlit in daylight, a tapered four-sided form with koi fish cut into each panel" loading="lazy"></div><figcaption><b>Koi Lamp</b>, laser-cut planar board, designed in Rhino, 2022</figcaption></figure></div>
+        <div class="tile"><figure><div class="img media"><img src="img/vase.jpg" width="800" height="1000" alt="A glazed ceramic vase with a stepped neck and teal rim, its body carved with yellow leaves outlined against pink" loading="lazy"></div><figcaption><b>Untitled</b>, ceramic, 2024</figcaption></figure></div>
+        <div class="tile"><figure><div class="img media" style="background: #cdcdcd url('img/pot-poster.jpg') center / cover no-repeat"><img src="img/pot.webp" width="460" height="818" alt="A painted ceramic pot turning slowly on a turntable, showing birds, fish, a boat, flowers and roots drawn around its surface"></div><figcaption><b>Island Summer</b>, ceramic, 2025</figcaption></figure></div>
+        <div class="tile"><figure><div class="img media"><img src="img/reaching.jpg" width="640" height="800" alt="A green-glazed ceramic vessel built from many sculpted hands reaching upward" loading="lazy"></div><figcaption><b>Reaching Vessel</b>, ceramic, 2025</figcaption></figure></div>
+      </div>
+      <h3 class="sub">2D</h3>
+      <div class="grid grid-2d">
+        <div class="tile"><figure><div class="img media sheet swap"><img class="lit" src="img/loose-spring.jpg" width="1140" height="1561" alt="Loose Spring, an intaglio print in black ink of a figure in a wheelchair rolling across a hillside above a boy tumbling through the dark below" loading="lazy"><img class="day" src="img/loose-spring-red.jpg" width="1140" height="1561" alt="The same intaglio plate printed in red-orange ink on cream paper" loading="lazy"></div><figcaption><b>Loose Spring</b>, intaglio, 2026</figcaption></figure></div>
+        <div class="tile"><figure><div class="img media sheet"><img src="img/halloween.jpg" width="1200" height="1600" alt="Halloween, a black-and-white linocut of three costumed figures walking arm in arm under streetlamps at night, with a cat in the shadows" loading="lazy"></div><figcaption><b>Halloween</b>, relief linocut, 2026</figcaption></figure></div>
+        <div class="tile"><figure><div class="img media sheet"><img src="img/trio.jpg" width="1600" height="1165" alt="Trio, a painting of three sunflowers with brown faces, side-eyed glances and red lips on a hot pink background" loading="lazy"></div><figcaption><b>Trio</b>, watercolor and colored pencil, 2026</figcaption></figure></div>
+        <div class="tile"><figure><div class="img media sheet swap"><img class="lit" src="img/dolly-yellow.jpg" width="910" height="1300" alt="Like Dolly, a black linocut on yellow paper of a woman with a towering beehive carved with the words Dont get so busy makin a livin ya forget to make a life" loading="lazy"><img class="day" src="img/dolly-pink.jpg" width="910" height="1300" alt="The same linocut printed on pink paper" loading="lazy"></div><figcaption><b>Like Dolly</b>, relief linocut, 2026</figcaption></figure></div>
+      </div>
+      <div class="subscribe" id="subscribe">
+        <p class="sub"><a class="sub-head" href="prints.html">Monthly print subscription &rarr;</a></p>
+        <div class="sub-grid">
+          <div class="postcard"><img src="img/dolly-purple.jpg" width="910" height="1300" alt="Like Dolly, a black linocut on light purple paper of a woman with a towering beehive, shown as a sample postcard"><p class="postcard-tag">Sample card</p></div>
+          <div class="sub-copy">
+            <p class="sub-lede">One postcard of my original work, mailed the last week of every month.</p>
+            <p class="sub-price"><span>$6</span> a month</p>
+            <a class="sub-btn is-soon" href="#subscribe" aria-disabled="true">Opening soon</a>
+            <ul class="sub-points">
+              <li>Printed from my own prints, paintings and drawings</li>
+              <li>A new piece every month, kept secret until it hits your mailbox</li>
+              <li>Cancel anytime</li>
+            </ul>
+            <p class="sub-more"><a href="prints.html">How it works &rarr;</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="poetry">
+    <div class="wrap">
+      <div>
+        <h2><img class="hw" src="hw-poetry.png" width="528" height="200" style="height:72px;width:auto" alt="Poetry"></h2>
+        <figure class="poetry-fig"><img class="poetry-photo" src="img/reading.jpg" width="1600" height="727" alt="Barrett reading from his honors poetry thesis to a packed audience in a bookstore"><figcaption>Reading from my thesis, &ldquo;This Is the Last Time.&rdquo;</figcaption></figure>
+      </div>
+      <div class="poetry-body">
+        <article class="poem-feature" id="poem-feature" aria-live="polite"></article>
+        <aside class="poem-more">
+          <h4>Poems</h4>
+          <ul>
+            <li><button type="button" class="poem-open is-current" data-poem="poem-napkin" aria-current="true">Writing on the Napkin</button></li>
+            <li><button type="button" class="poem-open" data-poem="poem-fdk">Five Dollar Kiss</button></li>
+            <li><button type="button" class="poem-open" data-poem="poem-last">This Is the Last Time</button></li>
+            <li><button type="button" class="poem-open" data-poem="poem-pot">I&rsquo;m Craving Pot Roast</button></li>
+            <li><button type="button" class="poem-open" data-poem="poem-evalyn">Evalyn</button></li>
+          </ul>
+          <p class="poem-note">Poems from &ldquo;This Is the Last Time,&rdquo; my honors poetry thesis at the University of Michigan. The full collection is available on request at <a href="mailto:barrettdolata@gmail.com">barrettdolata@gmail.com</a>.</p>
+        </aside>
+      </div>
+      <template id="poem-napkin"><h3>Writing on the Napkin</h3>
+          <p>Pot-head Piper, Ms. Nitpickington Nancy<br>and Lazy-eyed Laurie sitting at the bar,<br>Just-came-out-of-church Joanie<br>unbuckling Mormons out of the car.<br>Gluten-free and Glass-half-empty Gretchen<br>drinking from her warm streaked Pepsi glass—<br>just a cup of chicken lemon rice please,<br>she’ll break her fast alas.</p>
+          <p>Jackson James Jr. who orders<br>his steak to a mediocre medium,<br>killed and grilled by<br>Snaggletooth Sadie—the ever-so lady—<br>won't tolerate no<br>bitchin' in her kitchen.</p>
+          <p>There's Bald Brad, bandana-banded,<br>always prepping and schlepping,<br>serving Gen Z Gina,<br>a lingerer of bad taste and picky eaters.<br>They think a mile a meter,<br>asks for avocado toast<br>while taking a selfie,<br>saying her boyfriend's a cheater.</p>
+          <p>Teen mom Tracie<br>feeding her taken-by-surprise triplets<br>Billy, Betty, and Bailey.<br>Sad ol' Widowed Whitney<br>makes uncomfortable small talk<br>with the raisined old man<br>that looks like he may want to hit me.</p>
+          <p>Tattooed Tildy<br>may snatch your cup of coffee<br>and fill thee.<br>Oh-so-crazy Macie<br>may say a prayer,<br>take a big bite of her over-hard eggs<br>and tip ten percent—whopee!</p>
+          <p>Constantly Coughing Christopher,<br>Bugs-in-his-bed Blayne,<br>Spinach-stuck-in-tooth Tony,<br>Five-sides-of-fries Fred,<br>First-cut Frida,<br>Mop-and-close Maurita.</p>
+          <p>The show must go on,<br>served by Dangerous Dawn<br>with the calls and brawls<br>and falls and sprawls<br>of a greasy grimey Country Coney,<br>fifty cent poney, fried bologna, mostaccioli,<br>Is that a…</p>
+          <p><span class="indent">Cousin Tony?</span></p>
+          <p>Cousin Tony!</p>
+          <p>Eating, greeting, and diet cheating.</p></template>
+      <template id="poem-fdk"><h3>Five Dollar Kiss</h3>
+          <p>Let’s capture this moment:<br>a photo booth picture.<br>One day I’ll claw it tight,<br>read it as my scripture.</p>
+          <p>In black and white poses,<br>we were real then, weren’t we?<br>I used all twenty of my quarters<br>just so you could haunt me.</p></template>
+      <template id="poem-last"><h3>This Is the Last Time</h3>
+          <p>I’ll lie, and rest my eyes<br>Just a minute or so<br>The light from my lamp<br>Will let everyone know</p>
+          <p>My roommate will frown<br>At the crack in the door<br>My neighbors will see it<br>Through the window for sure</p>
+          <p>My reading left off<br>On a deadly cold war<br>The weight of my eyes<br>Proved the prose was a bore</p>
+          <p>I should've begun on<br>My living room floor<br>I wake up, it’s 4,<br>Fuck I've been here before.</p></template>
+      <template id="poem-pot"><h3>I&rsquo;m Craving Pot Roast</h3>
+          <p>My Mom would throw pot<br>roast in the crock,<br>her carrots and potatoes—<br>a sad-slurry-shlock.</p>
+          <p>Her moontop meat<br>on medium-high,<br>my sister would cry,<br>what critter had to die?</p>
+          <p>The rest of the groceries<br>were grassy and gray.<br>For breakfast, lunch and dinner,<br>I’ll pout, I’ll even pray.</p>
+          <p>Mom will always fuss,<br>You need to finish your plate.<br>I’d look down at Queenie<br>I’ll sit here and wait!</p></template>
+      <template id="poem-evalyn"><h3>Evalyn</h3>
+          <p>I read somewhere<br>My baby sister and I<br>are glass children.</p>
+          <p>Well, she was drooling all over the glass,<br>smudging it with chocolate hands<br>and strawberry milk lips,</p>
+          <p>and I would clean the glass<br>and she would clean it again right after me.</p>
+          <p>Tagging each other around the ranch,<br>running with rolled over toes,<br>she caught dyslexia,<br>I was good at reading but hated it,<br>but we loved to tell stories—<br>our backyard oratories.</p>
+          <p>The two giggling in mass,<br>we were really stained glass.</p>
+          <p>Born to throw rakes at each other<br>when bagging up grass,<br>and to scratch bake cakes<br>when this too shall pass,<br>And to make fun of Dad<br>When he tried to beat our ass,</p>
+          <p>To wear each other’s genes<br>and tear our scarlet letters,<br>we ask the garage salesman<br>If he can do any better,<br>and to say I saw it first,<br>just to upset her.</p>
+          <p>We collect blown vases,<br>Towne Club cases,<br>and lace creations<br>On our might-as-well-stop-migrations,</p>
+          <p>down in his basement,<br>We’ll show Pop our finds.<br>He’s cutting stained glass birds.<br>Oh, how we occurred.</p></template>
+  </section>
+
+  <section id="audio">
+    <div class="wrap">
+      <h2><img class="hw" src="hw-audio-v2.png" width="880" height="200" style="height:62px;width:auto" alt="Audio"></h2>
+      <div class="ob-head">
+        <a class="ob-word" href="https://podcasts.apple.com/us/podcast/off-beat/id1874641061" target="_blank" rel="noopener"><img src="img/offbeat-word.png" width="665" height="128" alt="Off-Beat"></a>
+        <p class="ob-tag">Reported stories about the places, people and ideas you don&rsquo;t notice until you stop and listen. Co-hosted with Emma Spring.</p>
+      </div>
+      <div class="ob-photos">
+        <figure><img src="img/offbeat-bates.jpg" width="1200" height="800" alt="Barrett and Emma interviewing Olympic ice dancer Evan Bates at a table with podcast microphones, under a whiteboard that reads Welcome Evan Bates" loading="lazy"><figcaption>Emma and I sit down with Olympic ice dancer Evan Bates.</figcaption></figure>
+        <figure><img src="img/offbeat-fire.jpg" width="1200" height="800" alt="Firefighters preparing dinner in the kitchen at Ann Arbor Fire Department Station One" loading="lazy"><figcaption>Emma and I chat with the Ann Arbor Fire Department as they prepare dinner.</figcaption></figure>
+      </div>
+      <div class="ob-cards">
+        <a class="ob-card" href="https://podcasts.apple.com/us/podcast/off-beat/id1874641061" target="_blank" rel="noopener">
+          <span class="ob-card-meta">May 7, 2026 · 47 min</span>
+          <span class="ob-card-title">No Pulse, No Pattern</span>
+          <span class="ob-card-desc">Healthcare workers on what medicine feels like from the inside, from an OR nurse to a medical student in the anatomy lab.</span>
+        </a>
+        <a class="ob-card" href="https://podcasts.apple.com/us/podcast/off-beat/id1874641061" target="_blank" rel="noopener">
+          <span class="ob-card-meta">March 29, 2026 · 29 min</span>
+          <span class="ob-card-title">Evan Bates — Coming Home</span>
+          <span class="ob-card-desc">A conversation with the five-time Olympian, days after his gold and silver medal finish in Milan-Cortina.</span>
+        </a>
+        <a class="ob-card" href="https://podcasts.apple.com/us/podcast/off-beat/id1874641061" target="_blank" rel="noopener">
+          <span class="ob-card-meta">March 12, 2026 · 32 min</span>
+          <span class="ob-card-title">Between the Sirens</span>
+          <span class="ob-card-desc">A Friday shift inside the Ann Arbor Fire Department’s Station One, between dinner, stories and alarms.</span>
+        </a>
+        <a class="ob-card" href="https://podcasts.apple.com/us/podcast/off-beat/id1874641061" target="_blank" rel="noopener">
+          <span class="ob-card-meta">Feb. 3, 2026 · 25 min</span>
+          <span class="ob-card-title">A Third Space</span>
+          <span class="ob-card-desc">How Yemeni coffee shops became Ann Arbor’s favorite place to stay a while.</span>
+        </a>
+      </div>
+      <div class="ob-foot">
+        <p class="listen"><a href="https://podcasts.apple.com/us/podcast/off-beat/id1874641061" target="_blank" rel="noopener">Listen on Apple Podcasts &#8599;</a><a href="https://open.spotify.com/show/5MMSGoX0rwGNyy74Y0t8Y9" target="_blank" rel="noopener">Listen on Spotify &#8599;</a></p>
+        <p class="note ob-origin">Started at <span class="md-blue">The Michigan Daily</span>, now produced independently.</p>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <h2><img class="hw" src="hw-sayhello-v3.png" width="831" height="200" style="height:72px;width:auto" alt="Say hello!"></h2>
+      <ul>
+        <li><a href="mailto:barrettdolata@gmail.com">barrettdolata@gmail.com</a></li>
+        <li><a href="https://www.linkedin.com/in/barrett-dolata" target="_blank" rel="noopener">LinkedIn</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">Barrett Dolata, 2026</div></footer>
+<div class="bk-zoom" id="bk-zoom" role="dialog" aria-modal="true" aria-label="Sketchbook page, enlarged"><div class="bk-zoom-bg" id="bk-zoom-bg"></div><img id="bk-zoom-img" alt=""></div>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Sketchbook spread"><button class="close" type="button" id="lb-close">Close</button><img id="lb-img" alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), im=document.getElementById('lb-img');
+  document.querySelectorAll('.spread').forEach(function(b){
+    b.addEventListener('click',function(){ var i=b.querySelector('img'); im.src=b.dataset.full; im.alt=i.alt; lb.classList.add('open'); document.getElementById('lb-close').focus(); });
+  });
+  function shut(){ lb.classList.remove('open'); }
+  lb.addEventListener('click',shut);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') shut(); });
+})();
+</script>
+<script>
+(function(){
+  var book=document.getElementById('book'); if(!book) return;
+  var srcs=['sketch-swimmers.jpg','sketch-ferry.jpg','sketch-cats-mouth.jpg','sketch-lisbon-gulbenkian.jpg','sketch-moon.jpg','sketch-collage.jpg','sketch-pink.jpg','sketch-runway.jpg','sketch-mountain-men.jpg','sketch-club.jpg'];
+  srcs.forEach(function(u){ var i=new Image(); i.src=u; });
+  var L=document.getElementById('pg-left'), U=document.getElementById('pg-under'), leaf=document.getElementById('leaf'),
+      F=document.getElementById('leaf-front'), B=document.getElementById('leaf-back'),
+      prev=document.getElementById('bk-prev'), next=document.getElementById('bk-next'), count=document.getElementById('bk-count');
+  var TURN=320, EVERY=800, N=srcs.length; /* every spread gets the same time */
+  var n=0, busy=false, timer=null, hold=null, manual=false;
+  function w(i){ return (i%N+N)%N; }
+  function side(el,i,pos){ el.style.backgroundImage='url('+srcs[w(i)]+')'; el.style.backgroundPosition=pos; }
+  function label(){ if(count) count.textContent=(n+1)+' / '+N; }
+  function set(){ side(L,n,'left center'); side(F,n,'right center'); side(B,n+1,'left center'); side(U,n+1,'right center'); label(); }
+  function done(){ leaf.style.transition='none'; leaf.classList.remove('turning'); leaf.style.transform=''; set(); void leaf.offsetWidth; leaf.style.transition=''; busy=false; }
+  function turn(){
+    if(busy) return; busy=true;
+    leaf.style.transitionDuration=TURN+'ms';
+    leaf.style.transitionTimingFunction='cubic-bezier(.45,.05,.3,1)';
+    leaf.classList.add('turning');
+    setTimeout(function(){ n=w(n+1); done(); }, TURN+20);
+  }
+  function back(){
+    if(busy) return; busy=true;
+    var p=w(n-1);
+    side(L,p,'left center'); side(F,p,'right center'); side(B,n,'left center'); side(U,n,'right center');
+    leaf.style.transition='none'; leaf.style.transform='rotateY(-180deg)'; void leaf.offsetWidth;
+    leaf.style.transition='transform '+TURN+'ms cubic-bezier(.45,.05,.3,1)'; leaf.style.transform='rotateY(0deg)';
+    setTimeout(function(){ n=p; done(); }, TURN+20);
+  }
+  function start(){ stop(); if(!manual && !zoomed) timer=setInterval(turn, EVERY); }
+  function stop(){ if(timer) clearInterval(timer); timer=null; }
+  function take(fn){ manual=true; stop(); fn(); clearTimeout(hold); hold=setTimeout(function(){ manual=false; start(); }, 8000); }
+  set();
+  if(next) next.addEventListener('click',function(){ take(turn); });
+  if(prev) prev.addEventListener('click',function(){ take(back); });
+  var Z=document.getElementById('bk-zoom'), ZB=document.getElementById('bk-zoom-bg'), ZI=document.getElementById('bk-zoom-img'), zoomed=false, ret=null;
+  function openZ(){ if(busy) { setTimeout(openZ, TURN); return; } zoomed=true; stop(); var u=srcs[w(n)]; ZB.style.backgroundImage='url('+u+')'; ZI.src=u; ZI.alt='Sketchbook spread '+(n+1)+' of '+N; ret=document.activeElement; Z.classList.add('open'); document.body.classList.add('bk-lock'); Z.setAttribute('tabindex','-1'); Z.focus(); }
+  function closeZ(){ if(!zoomed) return; zoomed=false; Z.classList.remove('open'); document.body.classList.remove('bk-lock'); if(ret&&ret.focus) ret.focus(); start(); }
+  book.addEventListener('click', openZ);
+  Z.addEventListener('click', closeZ);
+  document.addEventListener('keydown',function(e){ if(zoomed && (e.key==='Escape'||e.key==='Enter'||e.key===' ')){ e.preventDefault(); closeZ(); } });
+  book.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openZ(); return; } if(e.key==='ArrowRight'){ e.preventDefault(); take(turn); } if(e.key==='ArrowLeft'){ e.preventDefault(); take(back); } });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){ es.forEach(function(e){ e.isIntersecting ? start() : stop(); }); }).observe(book);
+  } else { start(); }
+  setInterval(function(){ if(!manual && !zoomed && !timer) { var r=book.getBoundingClientRect(); if(r.bottom>0 && r.top<innerHeight) start(); } }, 1000);
+})();
+</script>
+<script>
+(function(){
+  var feat=document.getElementById('poem-feature'); if(!feat) return;
+  var btns=[].slice.call(document.querySelectorAll('.poem-open'));
+  function render(id, scroll){
+    var t=document.getElementById(id); if(!t) return;
+    var tmp=document.createElement('div'); tmp.innerHTML=t.innerHTML;
+    var h=tmp.querySelector('h3'), ps=[].slice.call(tmp.querySelectorAll('p'));
+    feat.innerHTML=''; feat.appendChild(h);
+    var SHOW=2;
+    ps.slice(0,SHOW).forEach(function(p){ feat.appendChild(p); });
+    if(ps.length>SHOW+1){
+      var rest=document.createElement('div'); rest.className='poem-rest'; rest.hidden=true;
+      ps.slice(SHOW).forEach(function(p){ rest.appendChild(p); }); feat.appendChild(rest);
+      var b=document.createElement('button'); b.type='button'; b.className='poem-more-btn'; b.innerHTML='Read the full poem &#8595;'; b.setAttribute('aria-expanded','false');
+      b.addEventListener('click',function(){ var open=rest.hidden; rest.hidden=!open; b.setAttribute('aria-expanded',open?'true':'false'); b.innerHTML=open?'Show less &#8593;':'Read the full poem &#8595;'; if(!open) feat.scrollIntoView({block:'start'}); });
+      feat.appendChild(b);
+    } else { ps.slice(SHOW).forEach(function(p){ feat.appendChild(p); }); }
+    btns.forEach(function(x){ var on=x.dataset.poem===id; x.classList.toggle('is-current',on); if(on) x.setAttribute('aria-current','true'); else x.removeAttribute('aria-current'); });
+    if(scroll && feat.getBoundingClientRect().top<0) feat.scrollIntoView({block:'start'});
+  }
+  btns.forEach(function(b){ b.addEventListener('click',function(){ render(b.dataset.poem,true); }); });
+  render('poem-napkin',false);
+})();
+</script>
+<script>
+(function(){
+  try{ if('scrollRestoration' in history) history.scrollRestoration='manual'; }catch(e){}
+  if(location.hash) return;
+  var touched=false;
+  ['wheel','touchstart','keydown','mousedown'].forEach(function(ev){ window.addEventListener(ev,function(){ touched=true; },{passive:true,once:true}); });
+  function top(){ if(touched) return; try{ window.scrollTo({top:0,left:0,behavior:'instant'}); }catch(e){ window.scrollTo(0,0); } }
+  top(); document.addEventListener('DOMContentLoaded',top); window.addEventListener('load',top); window.addEventListener('pageshow',top);
+  [100,300,700,1200,2000].forEach(function(t){ setTimeout(top,t); });
+})();
+</script>
+<div class="clip-view" id="clip-view" role="dialog" aria-modal="true" aria-label="Story PDF"><button class="clip-close" id="clip-close" type="button">Close &#215;</button><div id="clip-pages"></div></div>
+<script>
+(function(){
+  var v=document.getElementById('clip-view'), pg=document.getElementById('clip-pages'), x=document.getElementById('clip-close'), last=null;
+  function close(){ v.classList.remove('open'); document.body.classList.remove('clip-lock'); pg.innerHTML=''; if(last) last.focus(); }
+  [].forEach.call(document.querySelectorAll('.pdf-link[data-clip]'),function(a){
+    a.addEventListener('click',function(e){ e.preventDefault(); last=a; var n=a.dataset.clip, c=+a.dataset.pages, h='';
+      for(var i=1;i<=c;i++) h+='<img src="clips/'+n+'/p-'+i+'.jpg" alt="Page '+i+' of the story" loading="lazy">';
+      pg.innerHTML=h; v.scrollTop=0; v.classList.add('open'); document.body.classList.add('clip-lock'); x.focus(); });
+  });
+  x.addEventListener('click',close);
+  v.addEventListener('click',function(e){ if(e.target===v) close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && v.classList.contains('open')) close(); });
+})();
+</script>
+<script>
+(function(){
+  var v=document.querySelector('.banner-media'); if(!v||v.tagName!=='VIDEO') return;
+  v.muted=true; v.defaultMuted=true; v.setAttribute('muted',''); v.playsInline=true;
+  var tried=false;
+  function go(){ var p=v.play(); if(p&&p.catch) p.catch(function(){}); }
+  function viaBlob(){ if(tried||!v.paused) return; tried=true;
+    fetch(v.currentSrc||v.src).then(function(r){ return r.blob(); }).then(function(bl){
+      var t=new Blob([bl],{type:'video/mp4'}); v.src=URL.createObjectURL(t); v.load(); go();
+    }).catch(function(){});
+  }
+  go();
+  setTimeout(function(){ if(v.paused) viaBlob(); },1200);
+  ['touchstart','touchend','scroll','click'].forEach(function(e){ window.addEventListener(e,function(){ if(v.paused){ go(); setTimeout(viaBlob,400); } },{passive:true}); });
+})();
+</script>
+</body>
+</html>
