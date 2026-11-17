@@ -301,6 +301,15 @@ body.clip-lock { overflow: hidden; }
 
 @media (max-width: 700px) { section h2 { text-align: center; } section h2 .hw { display: inline-block; } .paywall-note { text-align: center; } }
 
+.promo { display: none; }
+@media (max-width: 700px) {
+  .promo { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #d6281e; color: #fff; padding: 0 8px 0 18px; max-height: 0; overflow: hidden; transition: max-height .45s ease, padding .45s ease; }
+  .promo.show { max-height: 80px; padding-top: 12px; padding-bottom: 12px; }
+  .promo[hidden] { display: none; }
+  .promo-link { color: #fff; text-decoration: none; font-size: 15px; letter-spacing: .02em; }
+  .promo-x { background: none; border: 0; color: #fff; font-size: 26px; line-height: 1; padding: 4px 10px; cursor: pointer; font-family: inherit; }
+}
+
 /* Art grid */
 #art .grid:not(.grid-2d) { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 900px) { #art .grid:not(.grid-2d) { grid-template-columns: repeat(2, 1fr); } }
@@ -440,6 +449,10 @@ footer { border-top: 1px solid var(--rule); padding: 20px 0 40px; font-size: 13p
     <p class="tagline">Reporter, writer &amp; artist</p></div>
   </div>
 </header>
+  <div class="promo" id="promo" hidden>
+    <a class="promo-link" href="prints.html">Check out my monthly print subscription <span aria-hidden="true">&rarr;</span></a>
+    <button class="promo-x" id="promo-x" type="button" aria-label="Close">&times;</button>
+  </div>
 
 <main>
   <section id="about">
@@ -822,6 +835,16 @@ footer { border-top: 1px solid var(--rule); padding: 20px 0 40px; font-size: 13p
   go();
   setTimeout(function(){ if(v.paused) viaBlob(); },1200);
   ['touchstart','touchend','scroll','click'].forEach(function(e){ window.addEventListener(e,function(){ if(v.paused){ go(); setTimeout(viaBlob,400); } },{passive:true}); });
+})();
+</script>
+<script>
+(function(){
+  var b=document.getElementById('promo'), x=document.getElementById('promo-x'); if(!b) return;
+  var gone=false; try{ gone=sessionStorage.getItem('promoClosed')==='1'; }catch(e){}
+  if(gone) return;
+  b.hidden=false;
+  setTimeout(function(){ b.classList.add('show'); }, 1200);
+  x.addEventListener('click',function(){ b.classList.remove('show'); setTimeout(function(){ b.hidden=true; },450); try{ sessionStorage.setItem('promoClosed','1'); }catch(e){} });
 })();
 </script>
 </body>
